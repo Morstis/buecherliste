@@ -1,0 +1,37 @@
+@import "~@angular/material/theming";
+$primary: mat-palette($mat-deep-purple);
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav {
+  width: 65%;
+  min-width: 100px;
+  max-width: 250px;
+  .sidenav-list {
+    mat-icon {
+      margin-right: 0.7rem;
+    }
+    a {
+      color: mat-color($primary);
+    }
+  }
+}
+
+.sidenav .mat-toolbar {
+  background: inherit;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.router-link-active {
+  font-weight: bold;
+  /* TODO: Change manually */
+  background-color: rgba(mat-color($primary), 0.12) !important;
+}
+main {
+  padding: 1rem;
+}

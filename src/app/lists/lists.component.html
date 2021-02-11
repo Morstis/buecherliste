@@ -1,0 +1,10 @@
+<div>
+  <mat-card
+    *ngFor="let category of categories$ | async"
+    routerLink="{{ category.titel }}"
+  >
+    <h1>
+      {{ encode(category.titel) }}
+    </h1>
+  </mat-card>
+</div>

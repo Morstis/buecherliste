@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "buecherliste-lwp1251"
+  },
+  "targets": {
+    "buecherliste-lwp1251": {
+      "hosting": {
+        "buecherliste": [
+          "buecherliste-lwp1251"
+        ]
+      }
+    }
+  }
+}

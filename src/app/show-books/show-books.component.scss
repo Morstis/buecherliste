@@ -1,0 +1,44 @@
+@import "~@angular/material/theming";
+
+.main {
+  display: grid;
+  gap: 1rem;
+  grid: 1fr / repeat(auto-fill, minmax(20rem, 1fr));
+}
+mat-card {
+  display: flex;
+  flex-direction: column;
+  mat-card-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0rem;
+    .mat-card-avatar {
+      width: auto;
+      height: auto;
+      color: grey;
+      font-size: 2.3rem;
+      text-align: center;
+    }
+  }
+  mat-card-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 0.5rem;
+    .containerLayout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      div {
+        padding: 0.4rem 1rem;
+        @include mat-elevation(1);
+        font-size: 80%;
+        border-radius: 2rem;
+        color: white;
+      }
+    }
+  }
+  mat-card-actions {
+    margin: auto auto 0 0;
+  }
+}
