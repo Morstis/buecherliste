@@ -11,7 +11,16 @@ import { Message } from '../message.class';
   styleUrls: ['./show-books.component.scss'],
 })
 export class ShowBooksComponent extends Message implements OnInit {
-  books$ = this.lists.getAllFromCategory(this.cat);
+  books$ = this.lists.getAllFromCategory(this.cat).pipe(map(books => {
+    return books.map(book => {
+      if(book.tags.length > 0) {
+        book.tags.forEach(tag => {
+          book.formattedTags?.push(this.lists.getTagColor(tag));
+        })
+      }
+        return book;
+    })
+  }));
 
   constructor(
     private route: ActivatedRoute,

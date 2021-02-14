@@ -1,11 +1,13 @@
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
+import { Observable } from 'rxjs';
 export interface Buch {
   nr: number;
   titel: string;
   autor: string;
   fuer: string[];
   tags: string[];
+  formattedTags?: Observable<ColoredString>[];
   meta?: MetaData;
 }
 

@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { first, reduce, take } from 'rxjs/operators';
+import { first, map, reduce, take, tap } from 'rxjs/operators';
 import { Buch, ColoredString, MetaData } from './buch';
 import { Message } from './message.class';
 
@@ -34,6 +34,12 @@ export class ListsService extends Message {
       .collection<Buch>('buecher', (ref) => ref.orderBy('nr'))
       .valueChanges();
   }
+  getTagColor(tag: string):Observable<ColoredString> {
+    return this.store
+      .collection<ColoredString>('tags', (ref) => ref.where('data', '==', tag))
+      .valueChanges().pipe(map(all => all[0]));
+  }
+
   getAllCategories(): Observable<{ titel: string }[]> {
     return this.dbCollRef.valueChanges();
   }
@@ -59,14 +65,8 @@ export class ListsService extends Message {
       //   await ref.collection<ColoredString>('fuer').doc(fuer).set(fuer);
       // });
       data.tags.forEach(async (tags) => {
-        let res: ColoredString[] | [] = await this.store
-          .collection<ColoredString>('tags', (ref) =>
-            ref.where('data', '==', 'abytg')
-          )
-          .valueChanges()
-          .pipe(take(1))
-          .toPromise();
-        res = await this.store
+        const res = await this.store
+
           .collection<ColoredString>('tags', (ref) =>
             ref.where('data', '==', tags)
           )
@@ -74,14 +74,14 @@ export class ListsService extends Message {
           .pipe(take(1))
           .toPromise();
 
-        console.log('tested', res, tags);
         if (res.length === 0) {
-          const rand = Math.random();
-          await this.store.collection('tags').add({ data: tags, color: rand });
-          await ref.collection('tags').add({ data: tags, color: rand });
+          const randColor =
+            '#' + (((1 << 24) * Math.random()) | 0).toString(16);
+          await this.store
+            .collection('tags')
+            .add({ data: tags, color: randColor });
         } else {
           console.log(false);
-          await ref.collection('tags').add({ data: tags, color: res[0].color });
         }
 
         // await ref.collection<ColoredString>('tags').doc(tags).set(tags);
