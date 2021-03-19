@@ -1,0 +1,21 @@
+<div class="wrapper">
+  <mat-form-field>
+    <mat-label>{{ tagType | titlecase }}</mat-label>
+    <input
+      type="text"
+      placeholder="einen Tag aussuchen"
+      matInput
+      [formControl]="myControl"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      <mat-option
+        *ngFor="let option of filteredOptions | async"
+        [value]="option.data"
+      >
+        {{ option.data }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <button mat-mini-fab (click)="submit()"><mat-icon>add</mat-icon></button>
+</div>

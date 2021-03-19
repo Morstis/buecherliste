@@ -1,0 +1,52 @@
+<lw-formatted-string [(data)]="data"></lw-formatted-string>
+
+{{ data | json }}
+{{ book.fuer | json }}
+
+<mat-card>
+  <mat-card-header>
+    <div
+      mat-card-avatar
+      contenteditable="true"
+      [(ngModel)]="book.nr"
+      #nr="ngModel"
+    ></div>
+    <mat-card-title
+      contenteditable="true"
+      [(ngModel)]="book.titel"
+      #titel="ngModel"
+    ></mat-card-title>
+    <mat-card-subtitle
+      contenteditable="true"
+      [(ngModel)]="book.autor"
+      #autor="ngModel"
+    ></mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="split" *ngIf="(book$ | async)?.formattedFuer">
+      <h3>Für:</h3>
+      <div class="containerLayout">
+        <div
+          *ngFor="let fuer of (book$ | async)?.formattedFuer"
+          [ngStyle]="{ backgroundColor: (fuer | async)?.color }"
+        >
+          {{ (fuer | async)?.data }}
+        </div>
+      </div>
+      <lw-tagchooser tagType="fuer"></lw-tagchooser>
+    </div>
+    <div class="split" *ngIf="(book$ | async)?.formattedTags">
+      <h3>Sonstiges:</h3>
+      <div class="containerLayout">
+        <div
+          *ngFor="let tag of (book$ | async)?.formattedTags"
+          [ngStyle]="{ backgroundColor: (tag | async)?.color }"
+        >
+          {{ (tag | async)?.data }}
+        </div>
+      </div>
+      <lw-tagchooser tagType="tags"></lw-tagchooser>
+    </div>
+  </mat-card-content>
+</mat-card>

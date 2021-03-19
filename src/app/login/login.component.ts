@@ -8,9 +8,11 @@ import { ListsService } from '../lists.service';
 })
 export class LoginComponent implements OnInit {
   constructor(private service: ListsService) {
-    service.getrtdbTostore().then(() => {
-      console.log('ok');
-    });
+    // service.getrtdbTostore().then(() => {
+    //   console.log('fertig');
+    // });
+    // service.removeDoppleTags('fuer');
+    // service.removeDoppleTags('tags');
   }
 
   ngOnInit(): void {}

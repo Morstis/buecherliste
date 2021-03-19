@@ -44,6 +44,12 @@
         <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
       </button>
       <span>Bücherliste</span>
+      <mat-slide-toggle
+        labelPosition="before"
+        [checked]="isChecked.value"
+        (change)="change($event)"
+        >Bearbeiten</mat-slide-toggle
+      >
     </mat-toolbar>
     <main>
       <router-outlet></router-outlet>

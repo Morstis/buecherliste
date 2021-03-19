@@ -1,13 +1,19 @@
 @import "~@angular/material/theming";
-
-.main {
-  display: grid;
-  gap: 1rem;
-  grid: 1fr / repeat(auto-fill, minmax(20rem, 1fr));
-}
 mat-card {
   display: flex;
   flex-direction: column;
+  mat-form-field {
+    width: 100%;
+    ::ng-deep .mat-form-field-infix {
+        padding: 0 !important;
+        border-top: 0;
+    }
+  }
+  lw-tagchooser {
+    padding-top: 2rem;
+    position: relative;
+    display: block;
+  }
   mat-card-header {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -15,6 +21,8 @@ mat-card {
     height: 5.5rem;
     .mat-card-avatar {
       width: auto;
+      max-width: 5rem;
+
       height: auto;
       color: grey;
       font-size: 2.3rem;
@@ -22,6 +30,7 @@ mat-card {
     }
   }
   mat-card-content {
+ 
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
@@ -37,7 +46,9 @@ mat-card {
         border-radius: 2rem;
         color: white;
       }
+    
     }
+   
   }
   mat-card-actions {
     margin: auto auto 0 0;

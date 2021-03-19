@@ -8,6 +8,7 @@ export interface Buch {
   fuer: string[];
   tags: string[];
   formattedTags?: Observable<ColoredString>[];
+  formattedFuer?: Observable<ColoredString>[];
   meta?: MetaData;
 }
 

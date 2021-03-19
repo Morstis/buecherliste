@@ -32,12 +32,97 @@ export class ListsService extends Message {
     return this.dbCollRef
       .doc(category)
       .collection<Buch>('buecher', (ref) => ref.orderBy('nr'))
-      .valueChanges();
+      .valueChanges()
+      .pipe(
+        map((books) => {
+          return books.map((book) => {
+            if (book.tags.length > 0) {
+              book.tags.forEach((tag) => {
+                // I love ts
+                book = {
+                  ...book,
+                  formattedTags: [
+                    ...(book.formattedTags || []),
+                    this.getTagColor(tag),
+                  ],
+                };
+              });
+            }
+            if (book.fuer.length > 0) {
+              book.fuer.forEach((fuer) => {
+                console.log(fuer);
+                // I love ts
+                book = {
+                  ...book,
+                  formattedFuer: [
+                    ...(book.formattedFuer || []),
+                    this.getFuerColor(fuer),
+                  ],
+                };
+              });
+            }
+            return book;
+          });
+        })
+      );
   }
-  getTagColor(tag: string):Observable<ColoredString> {
+  getBook(route: string): Observable<Buch> {
+    const routeArr = route.split('/');
+    return this.dbCollRef
+      .doc(routeArr[0])
+      .collection<Buch>('buecher')
+      .doc(routeArr[1])
+      .valueChanges()
+      .pipe(
+        map((book) => {
+          if (book === undefined) {
+            const err = new Error(
+              'Unter der Route' + route + 'ist kein Buch zu finden'
+            );
+            this.handleError(err, 'Kein Buch gefunden!');
+            throw err;
+          }
+          let buch: Buch = book;
+          if (buch.tags.length > 0) {
+            buch.tags.forEach((tag) => {
+              // I love ts
+              buch = {
+                ...buch,
+                formattedTags: [
+                  ...(buch.formattedTags || []),
+                  this.getTagColor(tag),
+                ],
+              };
+            });
+          }
+          if (buch.fuer.length > 0) {
+            buch.fuer.forEach((fuer) => {
+              // I love ts
+              buch = {
+                ...buch,
+                formattedFuer: [
+                  ...(buch.formattedFuer || []),
+                  this.getFuerColor(fuer),
+                ],
+              };
+            });
+          }
+          return buch;
+        })
+      );
+  }
+
+  getTagColor(tag: string): Observable<ColoredString> {
     return this.store
       .collection<ColoredString>('tags', (ref) => ref.where('data', '==', tag))
-      .valueChanges().pipe(map(all => all[0]));
+      .valueChanges()
+      .pipe(map((all) => all[0]));
+  }
+  getFuerColor(fuer: string): Observable<ColoredString> {
+    return this.store
+      .collection<ColoredString>('fuer', (ref) => ref.where('data', '==', fuer))
+      .valueChanges()
+      .pipe(map((all) => all[0]));
   }
 
   getAllCategories(): Observable<{ titel: string }[]> {
@@ -75,11 +160,30 @@ export class ListsService extends Message {
           .toPromise();
 
         if (res.length === 0) {
-          const randColor =
-            '#' + (((1 << 24) * Math.random()) | 0).toString(16);
+          const randColor = this.generateFancyColor();
           await this.store
             .collection('tags')
             .add({ data: tags, color: randColor });
+        } else {
+          console.log(false);
+        }
+      });
+      data.fuer.forEach(async (fuer) => {
+        const res = await this.store
+
+          .collection<ColoredString>('fuer', (ref) =>
+            ref.where('data', '==', fuer)
+          )
+          .valueChanges()
+          .pipe(take(1))
+          .toPromise();
+
+        if (res.length === 0) {
+          const randColor = this.generateFancyColor();
+
+          await this.store
+            .collection('fuer')
+            .add({ data: fuer, color: randColor });
         } else {
           console.log(false);
         }
@@ -96,10 +200,14 @@ export class ListsService extends Message {
   }
 
   async getrtdbTostore(): Promise<boolean> {
-    this.rtdb
+    await this.rtdb
       .object<any>('/')
       .valueChanges()
-      .subscribe(async (res) => {
+      .pipe(take(1))
+      .toPromise()
+      .then(async (res) => {
+        console.log(res);
+
         for (const key in res) {
           if (Object.prototype.hasOwnProperty.call(res, key)) {
             const element = res[key];
@@ -126,14 +234,16 @@ export class ListsService extends Message {
                       .replace(/\*_S%ë5nN/g, '/')
                       .replace(/_P%ë5nN\*/g, '.')
                       .trim()
-                      .split(',') || [x.fuer]
+                      .split(',')
+                      .map((x) => x.trim()) || [x.fuer]
                   ).filter((c) => c !== ''),
                   tags: (
                     x.sonstiges
                       .replace(/\*_S%ë5nN/g, '/')
                       .replace(/_P%ë5nN\*/g, '.')
                       .trim()
-                      .split(',') || [x.sonstiges]
+                      .split(',')
+                      .map((x) => x.trim()) || [x.sonstiges]
                   ).filter((c) => c !== ''),
                   titel: x.titel
                     .replace(/\*_S%ë5nN/g, '/')
@@ -141,7 +251,7 @@ export class ListsService extends Message {
                   autor: x.autor
                     .replace(/\*_S%ë5nN/g, '/')
                     .replace(/_P%ë5nN\*/g, '.'),
-                }).then((x) => {
+                }).then(() => {
                   console.log('ok');
                 });
               }
@@ -150,5 +260,62 @@ export class ListsService extends Message {
         }
       });
     return true;
+  }
+
+  removeDoppleTags(tagType: string) {
+    let ids: string[] = [];
+    this.store
+      .collection<ColoredString>(tagType)
+      .valueChanges()
+      .pipe(take(1))
+      .toPromise()
+      .then(async (fuers) => {
+        fuers.forEach(async (fuer, i) => {
+          await this.store
+            .collection<ColoredString>(tagType, (ref) =>
+              ref.where('data', '==', fuer.data)
+            )
+            .snapshotChanges()
+            .pipe(take(1))
+            .toPromise()
+            .then((dopples) => {
+              console.log(dopples, dopples.length);
+              if (dopples.length > 1) {
+                dopples.forEach(async (dopp, i) => {
+                  if (i !== 0) {
+                    const id = dopp.payload.doc.id;
+                    console.log(id);
+                    if (!ids.includes(id)) {
+                      ids = [...ids, id];
+                    }
+                  }
+                });
+              }
+            });
+          console.log(i, fuers.length - 3);
+          if (i === fuers.length - 3) {
+            console.log('IDS', ids);
+            ids.forEach(async (id) => {
+              try {
+                await this.store.collection(tagType).doc(id).delete();
+                console.log('del:' + id);
+              } catch (error) {
+                throw error;
+              }
+            });
+          }
+        });
+      });
+  }
+
+  private generateFancyColor(): string {
+    function randomInt(min: number, max: number): number {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    const h = randomInt(0, 360);
+    const s = randomInt(42, 98);
+    const l = randomInt(40, 90);
+    return `hsl(${h},${s}%,${l}%)`;
   }
 }

@@ -27,6 +27,12 @@ $primary: mat-palette($mat-deep-purple);
   top: 0;
   z-index: 1;
 }
+.mat-toolbar {
+  display: flex;
+  mat-slide-toggle {
+    margin: auto 0 auto auto;
+  }
+}
 .router-link-active {
   font-weight: bold;
   /* TODO: Change manually */

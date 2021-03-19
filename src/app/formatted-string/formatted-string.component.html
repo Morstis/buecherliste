@@ -1,0 +1,19 @@
+<div class="wrapper">
+  <mat-form-field>
+    <input
+      matInput
+      [(ngModel)]="data.data"
+      [ngStyle]="{ color: data.color }"
+      (ngModelChange)="change()"
+    />
+    <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
+    <ngx-mat-color-picker #picker [touchUi]="touchUi"></ngx-mat-color-picker>
+  </mat-form-field>
+
+  <input
+    [ngxMatColorPicker]="picker"
+    [(ngModel)]="data.color"
+    (ngModelChange)="change()"
+    class="hidden"
+  />
+</div>

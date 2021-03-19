@@ -1,20 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Color } from '@angular-material-components/color-picker';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs/operators';
+import { Buch } from '../buch';
 import { InternelService } from '../internel.service';
 import { ListsService } from '../lists.service';
 import { Message } from '../message.class';
 
 @Component({
-  selector: 'lw-show-books',
-  templateUrl: './show-books.component.html',
-  styleUrls: ['./show-books.component.scss'],
+  selector: 'lw-edit',
+  templateUrl: './edit.component.html',
+  styleUrls: ['./edit.component.scss'],
 })
-export class ShowBooksComponent extends Message implements OnInit {
-  edit$ = this.internal.edit$;
-  books$ = this.lists.getAllFromCategory(this.cat);
+export class EditComponent extends Message implements OnInit {
+  book$ = this.lists.getBook(this.key.replace(':', '/'));
 
+  book: Buch = {} as Buch;
+  data = {
+    data: 'test',
+    color: '#f53206',
+  };
   constructor(
     private route: ActivatedRoute,
     private lists: ListsService,
@@ -22,9 +27,13 @@ export class ShowBooksComponent extends Message implements OnInit {
     private internal: InternelService
   ) {
     super(snackbar);
+    this.book$.subscribe((res) => {
+      console.log(res);
+      this.book = res;
+    });
   }
-  get cat(): string {
-    const id = this.route.snapshot.paramMap.get('id');
+  get key(): string {
+    const id = this.route.snapshot.paramMap.get('key');
     // Unmöglich | Kann nicht eintreffen!
     if (typeof id !== 'string') {
       const stringErr = new Error('Id ist kein String!');
@@ -33,12 +42,6 @@ export class ShowBooksComponent extends Message implements OnInit {
     }
     return id;
   }
-  encode(input: string) {
-    return input.replace(/__slash__/g, '/').replace(/__dot__/g, '.');
-  }
-  ngOnInit(): void {
-    this.books$.subscribe((book) => {
-      console.log(book);
-    });
-  }
+
+  ngOnInit(): void {}
 }
